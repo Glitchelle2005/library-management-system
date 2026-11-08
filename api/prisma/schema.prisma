@@ -18,7 +18,7 @@ enum Role {
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
-  name      String
+  name      String?
   role      Role     @default(PATRON)
   reviews   Review[]
   createdAt DateTime @default(now())
@@ -44,7 +44,7 @@ model Book {
   availableCopies Int      @default(1)
   totalCopies     Int      @default(1)
   genreId         Int
-  genre           Genre    @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  genre           Genre    @relation(fields: [genreId], references: [id])
   reviews         Review[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -55,10 +55,9 @@ model Review {
   rating    Int
   comment   String?
   bookId    Int
-  book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  book      Book     @relation(fields: [bookId], references: [id])
   userId    Int
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-

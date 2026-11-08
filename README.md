@@ -132,7 +132,7 @@ erDiagram
 
 ---
 
-## 💡 Schema Decisions
+## Schema Decisions
 
 ### Why Book References Genre via Foreign Key Rather Than Embedding It
 

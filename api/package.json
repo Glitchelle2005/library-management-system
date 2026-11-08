@@ -13,7 +13,9 @@
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "prisma db seed"
+    "prisma:seed": "prisma db seed",
+    "migrate": "prisma migrate dev",
+    "seed": "prisma db seed"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
@@ -24,13 +26,13 @@
     "@nestjs/platform-express": "^10.0.0",
     "@prisma/client": "^5.10.0",
     "reflect-metadata": "^0.2.0",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "prisma": "^5.10.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "prisma": "^5.10.0"
   }
 }
 
