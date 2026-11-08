@@ -279,3 +279,4 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 ```
 
 This service extends `PrismaClient` and leverages NestJS's `OnModuleInit` lifecycle hook to automatically establish database connections when the application boots up. It is packaged in `PrismaModule` for dependency injection across controllers and services.
+
