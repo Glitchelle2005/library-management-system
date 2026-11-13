@@ -1,4 +1,5 @@
 import { PrismaClient, Role } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -273,22 +274,30 @@ async function main() {
   console.log(`✅ Seeded ${booksData.length} books successfully.`);
 
   // 3. Seed Users with PATRON and LIBRARIAN roles
+  const defaultPassword = await bcrypt.hash('Password123!', 10);
+
   const librarian = await prisma.user.upsert({
     where: { email: 'head.librarian@library.org' },
-    update: {},
+    update: {
+      password: defaultPassword,
+    },
     create: {
       name: 'Sarah Connor',
       email: 'head.librarian@library.org',
+      password: defaultPassword,
       role: Role.LIBRARIAN,
     },
   });
 
   const patron = await prisma.user.upsert({
     where: { email: 'patron.john@example.com' },
-    update: {},
+    update: {
+      password: defaultPassword,
+    },
     create: {
       name: 'John Doe',
       email: 'patron.john@example.com',
+      password: defaultPassword,
       role: Role.PATRON,
     },
   });

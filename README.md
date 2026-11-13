@@ -280,3 +280,62 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
 
 This service extends `PrismaClient` and leverages NestJS's `OnModuleInit` lifecycle hook to automatically establish database connections when the application boots up. It is packaged in `PrismaModule` for dependency injection across controllers and services.
 
+---
+
+## 🔐 Complete Book API, Auth & Authorization
+
+This phase expands the library management system with full RESTful APIs, class-validator input validation, JWT authentication, role-based authorization, and rate limiting.
+
+### 📡 API Endpoints Overview
+
+| Method | Endpoint | Access / Guard | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/auth/register` | Public | Register a new user (`PATRON` or `LIBRARIAN`) with bcrypt password hashing |
+| `POST` | `/auth/login` | Public (Rate-limited) | Authenticate user credentials and return a signed JWT `access_token` |
+| `GET` | `/users/profile` | `JwtAuthGuard` | Read and return the authenticated user from `@Req()` *(Stretch Goal)* |
+| `POST` | `/genres` | Public / Open | Create a new genre (validated by `CreateGenreDto`) |
+| `GET` | `/genres` | Public / Open | Retrieve all genres with associated book counts |
+| `GET` | `/genres/:id` | Public / Open | Retrieve a specific genre by its integer ID |
+| `PATCH` | `/genres/:id` | Public / Open | Update genre properties (validated by `UpdateGenreDto`) |
+| `DELETE` | `/genres/:id` | Public / Open | Delete a genre by its integer ID |
+| `GET` | `/books` | Public / Open | List books with query filtering (`genreId`), search (`title`/`author`), and pagination (`page`, `limit`) |
+| `GET` | `/books/:id` | Public / Open | Retrieve a single book with its genre and reviews |
+| `POST` | `/books` | `JwtAuthGuard`, `RolesGuard` (`LIBRARIAN`) | Create a new book (validated by `CreateBookDto`) |
+| `PATCH` | `/books/:id` | `JwtAuthGuard`, `RolesGuard` (`LIBRARIAN`) | Update an existing book (validated by `UpdateBookDto`) |
+| `DELETE` | `/books/:id` | `JwtAuthGuard`, `RolesGuard` (`LIBRARIAN`) | Delete a book from catalog |
+
+---
+
+### 🔍 Query-Based Filtering & Pagination (`GET /books`)
+
+`GET /books` supports dynamic filtering and pagination via `@Query()` parameters:
+- `genreId` *(optional)*: Filter books belonging to a specific genre (e.g., `?genreId=1`)
+- `search` *(optional)*: Case-insensitive search across book `title` OR `author` (e.g., `?search=Dune`)
+- `page` *(optional, default: 1)*: Page number for pagination
+- `limit` *(optional, default: 10)*: Page size limit
+
+Prisma implements this using dynamic `where` clauses and `skip` / `take`:
+```typescript
+const skip = (page - 1) * limit;
+const take = limit;
+```
+
+---
+
+### 🛡️ Authentication & Authorization Flow
+
+1. **Password Security**: Passwords are securely hashed with `bcrypt` (10 salt rounds) before persistence during registration and validated using `bcrypt.compare` during login.
+2. **JWT Strategy**: Requests bearing an `Authorization: Bearer <token>` header are validated by `JwtStrategy` using `JWT_SECRET`.
+3. **Role-Based Guards**:
+   - Routes decorated with `@Roles(Role.LIBRARIAN)` are restricted by `RolesGuard`.
+   - `RolesGuard` extracts the user's role from `req.user.role` and verifies it against the required roles configured via the `@Roles()` decorator.
+4. **Rate Limiting**: The login endpoint is protected against brute-force attacks via `@nestjs/throttler` (`@Throttle({ default: { limit: 5, ttl: 60000 } })`).
+
+---
+
+### 📮 Postman Collection
+
+A complete Postman collection covering all endpoints, query parameters, authentication flows, and automated collection token management is available at:
+👉 [`docs/postman_collection.json`](./docs/postman_collection.json)
+
+
