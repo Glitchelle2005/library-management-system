@@ -1,11 +1,20 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useInRouterContext } from 'react-router-dom';
 
 export default function BookCard({ book }) {
   if (!book) return null;
 
+  let inRouter = false;
+  try {
+    inRouter = useInRouterContext();
+  } catch (e) {
+    inRouter = false;
+  }
+
+  const detailUrl = `/books/${book.id}`;
+
   return (
-    <div className="book-card">
+    <div className="book-card" data-testid={`book-card-${book.id}`}>
       <div className="book-card-body">
         <span className="book-genre-pill">{book.genre?.name || 'General'}</span>
         <h3 className="book-title">{book.title}</h3>
@@ -20,9 +29,15 @@ export default function BookCard({ book }) {
         </div>
       </div>
       <div className="book-card-footer">
-        <Link to={`/books/${book.id}`} className="view-details-btn">
-          View Details →
-        </Link>
+        {inRouter ? (
+          <Link to={detailUrl} className="view-details-btn">
+            View Details →
+          </Link>
+        ) : (
+          <a href={detailUrl} className="view-details-btn">
+            View Details →
+          </a>
+        )}
       </div>
     </div>
   );

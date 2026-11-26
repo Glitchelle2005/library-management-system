@@ -14,12 +14,16 @@ export default function BookGrid({ search, genreId, sortBy }) {
         setLoading(true);
         setError(null);
 
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+        const rawUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+        const base = rawUrl.replace(/\/+$/, '');
         const params = new URLSearchParams();
         if (genreId) params.append('genreId', genreId);
         if (search) params.append('search', search);
 
-        const response = await fetch(`${apiUrl}/books?${params.toString()}`);
+        const queryString = params.toString();
+        const requestUrl = queryString ? `${base}/books?${queryString}` : `${base}/books`;
+
+        const response = await fetch(requestUrl);
         if (!response.ok) {
           throw new Error(`Failed to load books: ${response.statusText} (${response.status})`);
         }

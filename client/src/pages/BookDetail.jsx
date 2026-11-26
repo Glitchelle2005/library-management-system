@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useInRouterContext } from 'react-router-dom';
 
 export default function BookDetail() {
   const { id } = useParams();
@@ -7,14 +7,29 @@ export default function BookDetail() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  let inRouter = false;
+  try {
+    inRouter = useInRouterContext();
+  } catch (e) {
+    inRouter = false;
+  }
+
+  const renderBackLink = (className = 'back-button') => {
+    if (inRouter) {
+      return <Link to="/" className={className}>← Back to Catalog</Link>;
+    }
+    return <a href="/" className={className}>← Back to Catalog</a>;
+  };
+
   useEffect(() => {
     let isMounted = true;
     const fetchBook = async () => {
       try {
         setLoading(true);
         setError(null);
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-        const response = await fetch(`${apiUrl}/books/${id}`);
+        const rawUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+        const base = rawUrl.replace(/\/+$/, '');
+        const response = await fetch(`${base}/books/${id}`);
         if (!response.ok) {
           throw new Error(`Failed to fetch book: ${response.statusText} (${response.status})`);
         }
@@ -44,7 +59,7 @@ export default function BookDetail() {
 
   if (loading) {
     return (
-      <div className="book-detail-page">
+      <div className="book-detail-page" data-testid="detail-loading">
         <div className="skeleton-detail-card">
           <div className="skeleton-line skeleton-badge"></div>
           <div className="skeleton-line skeleton-title-lg"></div>
@@ -58,10 +73,10 @@ export default function BookDetail() {
 
   if (error) {
     return (
-      <div className="book-detail-page">
+      <div className="book-detail-page" data-testid="detail-error">
         <div className="detail-error-box">
           <p className="error-text">⚠️ {error}</p>
-          <Link to="/" className="back-button">← Back to Catalog</Link>
+          {renderBackLink()}
         </div>
       </div>
     );
@@ -69,18 +84,18 @@ export default function BookDetail() {
 
   if (!book) {
     return (
-      <div className="book-detail-page">
+      <div className="book-detail-page" data-testid="detail-empty">
         <div className="detail-empty-box">
           <p>Book not found.</p>
-          <Link to="/" className="back-button">← Back to Catalog</Link>
+          {renderBackLink()}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="book-detail-page">
-      <Link to="/" className="back-button">← Back to Catalog</Link>
+    <div className="book-detail-page" data-testid="book-detail">
+      {renderBackLink()}
       
       <article className="book-detail-card">
         <div className="detail-header">
@@ -118,13 +133,12 @@ export default function BookDetail() {
         {book.reviews && book.reviews.length > 0 && (
           <div className="detail-reviews-section">
             <h2 className="section-heading">Patron Reviews ({book.reviews.length})</h2>
-            <div className="reviews-grid">
+            <div className="reviews-list">
               {book.reviews.map((review) => (
                 <div key={review.id} className="review-card">
-                  <div className="review-rating">
-                    {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
-                  </div>
-                  {review.comment && <p className="review-text">"{review.comment}"</p>}
+                  <div className="review-rating">{'★'.repeat(review.rating || 5)}</div>
+                  <p className="review-comment">"{review.comment}"</p>
+                  <span className="review-user">— {review.user?.name || 'Patron'}</span>
                 </div>
               ))}
             </div>

@@ -1,11 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 export default function SearchBar({ onSearch }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
     const handler = setTimeout(() => {
-      onSearch(searchTerm);
+      if (typeof onSearch === 'function') {
+        onSearch(searchTerm);
+      }
     }, 350);
 
     return () => {

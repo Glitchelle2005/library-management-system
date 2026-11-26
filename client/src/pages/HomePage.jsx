@@ -10,27 +10,37 @@ export default function HomePage() {
   const [loadingGenres, setLoadingGenres] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchGenres = async () => {
       try {
         setLoadingGenres(true);
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-        const response = await fetch(`${apiUrl}/genres`);
+        const rawUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+        const base = rawUrl.replace(/\/+$/, '');
+        const response = await fetch(`${base}/genres`);
         if (response.ok) {
           const data = await response.json();
-          setGenres(Array.isArray(data) ? data : (data.data || []));
+          if (isMounted) {
+            setGenres(Array.isArray(data) ? data : (data.data || []));
+          }
         }
       } catch (err) {
         console.error('Failed to fetch genres:', err);
       } finally {
-        setLoadingGenres(false);
+        if (isMounted) {
+          setLoadingGenres(false);
+        }
       }
     };
 
     fetchGenres();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (
-    <div className="home-page">
+    <div className="home-page" data-testid="home-page">
       <header className="page-header">
         <h1 className="header-title">📚 Library Catalog</h1>
         <p className="header-subtitle">Explore our collection of titles, search by author or topic, and filter by genre.</p>
@@ -50,6 +60,7 @@ export default function HomePage() {
               onChange={(e) => setGenreId(e.target.value)}
               className="genre-select"
               aria-label="Filter by genre"
+              disabled={loadingGenres && genres.length === 0}
             >
               <option value="">All Genres</option>
               {genres.map((genre) => (
