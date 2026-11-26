@@ -9,3 +9,4 @@ export class CreateGenreDto {
   @IsOptional()
   description?: string;
 }
+

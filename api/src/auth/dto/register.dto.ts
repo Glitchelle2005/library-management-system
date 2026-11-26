@@ -26,3 +26,4 @@ export class RegisterDto {
   @IsOptional()
   role?: Role;
 }
+

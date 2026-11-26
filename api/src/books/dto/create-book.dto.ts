@@ -44,3 +44,4 @@ export class CreateBookDto {
   @IsOptional()
   availableCopies?: number;
 }
+

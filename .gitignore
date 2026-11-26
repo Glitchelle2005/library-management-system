@@ -3,9 +3,11 @@ node_modules/
 dist/
 
 # Environment variables (Do not commit real credentials!)
-.env
+api/.env
 .env.local
 .env.*.local
+!client/.env
+!client/.env.example
 
 # Prisma
 /api/prisma/*.db
